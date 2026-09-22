@@ -107,6 +107,7 @@
   @keyframes rise{0%{opacity:0;transform:translate(-50%,0) scale(.6)}
                   25%{opacity:1;transform:translate(-50%,-14px) scale(1.1)}
                   100%{opacity:0;transform:translate(-50%,-46px) scale(1)}}
+  .combo.soft{color:var(--ink-soft);font-size:21px}
   .combo{position:absolute;left:50%;top:-4px;transform:translateX(-50%);z-index:6;pointer-events:none;
          font-size:26px;font-weight:900;color:var(--accent);text-shadow:0 2px 0 rgba(0,0,0,.18);
          animation:rise 1.1s ease-out forwards}
@@ -799,6 +800,7 @@ function placeCat(i){
     cell.classList.remove("errflash");void cell.offsetWidth;cell.classList.add("errflash");
     setTimeout(()=>cell.classList.remove("errflash"),950);
     floatBad(i);
+    showCombo(CONSOLE_MSG[Math.floor(Math.random()*CONSOLE_MSG.length)],true);
     buzz([30,60,30]);
     renderAll();
     if(G.lives<=0)lose();
@@ -814,12 +816,14 @@ function placeCat(i){
   const pts=900+80*G.combo;
   G.score+=pts;
   floatPoints(i,"+"+pts);
-  const labels={3:"Joli !",4:"Super !",5:"Incroyable !",6:"Irréel !",7:"Légendaire !"};
-  if(labels[G.combo])showCombo(labels[G.combo]);
   renderAll();
   const placed=G.state.filter(x=>x===1).length;
-  if(placed===G.N)win();
-  else saveGame();
+  if(placed===G.N){win();return;}
+  // un mot d'encouragement à chaque chat trouvé
+  if(placed===G.N-1)showCombo("Dernier chat !");
+  else if(placed===Math.ceil(G.N/2))showCombo("Déjà la moitié !");
+  else showCombo(praise(G.combo));
+  saveGame();
 }
 function autoMark(i){
   const N=G.N,r=(i/N)|0,c=i%N,g=G.reg[i];
@@ -853,10 +857,27 @@ function floatBad(i){
   wrap.appendChild(f);
   setTimeout(()=>f.remove(),1000);
 }
-function showCombo(txt){
+const CONSOLE_MSG=["Pas grave !","Ça arrive !","Continue !","On reprend !","T'inquiète !"];
+const PRAISE=[
+  ["Bravo !","Bien joué !","Nickel !","Bien vu !","Joli !","Parfait !","Et hop !"],
+  ["Super !","Excellent !","Tu gères !","Impeccable !","Ça s'enchaîne !"],
+  ["Incroyable !","Magnifique !","Tu es en feu !","Quelle série !","Bluffant !"],
+  ["Irréel !","Légendaire !","Chapeau bas !","Imbattable !","Championne !"]
+];
+let lastPraise="";
+function praise(combo){
+  const tier=combo<3?0:combo<5?1:combo<7?2:3;
+  const list=PRAISE[tier];
+  let w=list[Math.floor(Math.random()*list.length)];
+  if(w===lastPraise)w=list[(list.indexOf(w)+1)%list.length];
+  lastPraise=w;
+  return w;
+}
+function showCombo(txt,soft){
   const wrap=document.getElementById("board").parentElement;
+  wrap.querySelectorAll(".combo").forEach(e=>e.remove());   // un seul message à la fois
   const d=document.createElement("div");
-  d.className="combo";d.textContent=txt;
+  d.className="combo"+(soft?" soft":"");d.textContent=txt;
   wrap.appendChild(d);
   setTimeout(()=>d.remove(),1100);
 }
@@ -921,9 +942,13 @@ function win(){
   document.getElementById("winPts").textContent=levelScore;
   document.getElementById("winFish").textContent=G.lives;
   document.getElementById("winTotal").textContent=S.score;
-  document.getElementById("winTitle").textContent=G.perfect?"Sans faute !":"Grille résolue !";
+  const WIN_TITLES=["Bravo !","Magnifique !","Chapeau !","Quelle championne !","Superbe !"];
+  document.getElementById("winTitle").textContent=G.perfect
+    ? "Sans faute, bravo !"
+    : WIN_TITLES[Math.floor(Math.random()*WIN_TITLES.length)];
+  const encore=G.daily?"Défi du jour bouclé !":"Niveau "+G.level+" terminé, en route pour le "+(G.level+1)+" !";
   document.getElementById("winSub").textContent=
-    "Bonus poissons "+fishBonus+(perfectBonus?" · sans faute "+perfectBonus:"");
+    encore+"  Bonus poissons "+fishBonus+(perfectBonus?" · sans faute "+perfectBonus:"");
   bigHeart();
   setTimeout(function(){document.getElementById("veilWin").classList.add("on");},1150);
   renderAll();
