@@ -1,5 +1,5 @@
 /* Minoudoku — cache hors ligne */
-const CACHE = "minoudoku-v2";
+const CACHE = "minoudoku-v3";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "./index.html"]))
     .catch(()=>{}).then(() => self.skipWaiting()));

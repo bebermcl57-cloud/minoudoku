@@ -23,17 +23,20 @@
     --r1:#2f7d54; --r2:#cfa01c; --r3:#a9cdea; --r4:#8ed37c; --r5:#f2924f;
     --r6:#8d7fd8; --r7:#f7d98d; --r8:#f0a1c6; --r9:#57c2c2; --r10:#b9d46a;
     --tile-x:rgba(255,255,255,.92);
+    --pop-bg:rgba(255,253,249,.95);
     --board:#fffdf9;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       --bg:#221c18; --panel:#2e2721; --ink:#f3e7da; --ink-soft:#b09a86;
       --line:#42372f; --board:#2e2721; --shadow:0 2px 0 rgba(0,0,0,.3);
+      --pop-bg:rgba(46,39,33,.95);
     }
   }
   :root[data-theme="dark"]{
     --bg:#221c18; --panel:#2e2721; --ink:#f3e7da; --ink-soft:#b09a86;
     --line:#42372f; --board:#2e2721; --shadow:0 2px 0 rgba(0,0,0,.3);
+    --pop-bg:rgba(46,39,33,.95);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%}
@@ -107,10 +110,19 @@
   @keyframes rise{0%{opacity:0;transform:translate(-50%,0) scale(.6)}
                   25%{opacity:1;transform:translate(-50%,-14px) scale(1.1)}
                   100%{opacity:0;transform:translate(-50%,-46px) scale(1)}}
-  .combo.soft{color:var(--ink-soft);font-size:21px}
-  .combo{position:absolute;left:50%;top:-4px;transform:translateX(-50%);z-index:6;pointer-events:none;
-         font-size:26px;font-weight:900;color:var(--accent);text-shadow:0 2px 0 rgba(0,0,0,.18);
-         animation:rise 1.1s ease-out forwards}
+  .combo{position:fixed;left:50%;top:50%;z-index:20;pointer-events:none;white-space:nowrap;
+         font-size:min(9.5vw,42px);font-weight:900;color:var(--accent);
+         background:var(--pop-bg);padding:14px 26px;border-radius:22px;
+         box-shadow:0 10px 30px rgba(0,0,0,.18);
+         animation:popmid 1.25s cubic-bezier(.34,1.56,.64,1) forwards}
+  .combo.soft{color:var(--ink-soft);font-size:min(8vw,34px)}
+  @keyframes popmid{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}
+    22%{opacity:1;transform:translate(-50%,-50%) scale(1.14)}
+    40%{transform:translate(-50%,-50%) scale(1)}
+    72%{opacity:1;transform:translate(-50%,-52%) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-68%) scale(1.04)}
+  }
 
   /* ---------- bottom controls ---------- */
   .tools{display:flex;gap:7px}
